@@ -41,10 +41,10 @@
                                 <%= EJSDATA[i].id %>
                             </td>
                             <td>
-                                <%= EJSDATA[i].detail %>
+                                <%= EJSDATA[i].title %>
                             </td>
                             <td>
-                                <%= new Date(EJSDATA[i].datetime).toISOString().replace('T', ' ' ).slice(0, -5); %>
+                                <%= new Date(new Date(EJSDATA[i].datetime).getTime() + (9 * 60 * 60 * 1000)).toISOString().replace('T', ' ' ).slice(0, -5); %>
                             </td>
                         </tr>
                         <% } %>
@@ -66,12 +66,16 @@
                         <div class="modal-body">
                             <div class="board-input row">
                                 <p class="m-1 p-0">아이디</p>
-                                <input type="text" name="id" id="boardId" placeholder="아이디">
+                                <input type="text" name="id" id="boardId" placeholder="아이디" required>
+                            </div>
+                            <div class="board-input row">
+                                <p class="m-1 p-0">제목</p>
+                                <input type="text" name="title" id="boardTitle" placeholder="글 제목" required>
                             </div>
                             <div class="board-input row">
                                 <p class="m-1 mt-2 p-0">글</p>
                                 <textarea name="detail" id="boardDetail" class="px-2 py-1" cols="30"
-                                    rows="10"></textarea>
+                                    rows="10" required></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -86,12 +90,14 @@
     <script>
         const detailInput = document.querySelector('#boardDetail')
         const idInput = document.querySelector('#boardId')
+        const titleInput = document.querySelector('#boardTitle')
         const boardList = document.querySelector('#boardContainer table tbody')
 
         //얘는 버튼 눌렀을때 돌아가는 놈
         document.querySelector('#boardSubmit').addEventListener('click', (e) => {
             let detail = detailInput.value;
             let id = idInput.value;
+            let title = titleInput.value;
             let httpReq = new XMLHttpRequest();
             httpReq.onreadystatechange = () => {
                 if (httpReq.readyState == 4 && httpReq.status == 200) {
@@ -100,19 +106,13 @@
 
                     const list = json.list; //DB data 가져오기
                     list.forEach(item => {
-                        let div = document.createElement('div');
+                        let div = document.createElement('tr');
                         div.className = "board-each col-12";
                         div.innerHTML = `
-                    <div class="board-header">
-                        <div class="user-id">${item.id}</div>
-                        <div class="board-date">${item.datetime}</div>
-                    </div>
-                    <div class="board-body">
-                        <div class="board-detail">${item.detail}</div>
-                    </div>
-                    <div class="board-footer">
-                        <button class="board-reply btn btn-secondary">답글달기</button>
-                    </div>
+                        <td>${item.idx}</td>
+                        <td>${item.id}</td>
+                        <td>${item.title}</td>
+                        <td>${new Date(item.datetime.getTime() + (9 * 60 * 60 * 1000)).toISOString().replace('T', ' ').slice(0, -5)}</td>
                     `;
                         boardList.append(div)
                     });
@@ -120,7 +120,7 @@
             };
             httpReq.open('POST', '/insert/board');
             httpReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            httpReq.send(`detail=${detail}&id=${id}`)
+            httpReq.send(`detail=${detail}&id=${id}&title=${title}`)
         });
     </script>
 

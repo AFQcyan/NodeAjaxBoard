@@ -24,12 +24,12 @@ app.get('/', async (req, res) => {
     res.render('board', { jsonData: jsonData, });
 });
 app.post('/insert/board', async (req, res) => {
-    const { detail, id } = req.body;
-    const sql = "INSERT INTO post (`id`, `datetime`, `detail`) VALUES (?,now(),?)"
-    await pool.query(sql, [id, detail]); //게시물 추가
+    const { detail, id, title } = req.body;
+    const sql = "INSERT INTO post (`id`, `title`, `datetime`, `detail`) VALUES (?,?,now(),?)"
+    await pool.query(sql, [id, title, detail]); //게시물 추가
     // let now = new Date()
     // let dayTimeString = new Date(now.getTime()).toISOString().replace('T', ' ').slice(0, -5);
-    let data = await pool.query("SELECT * FROM post") //모든 게시물 긁어오기
+    let data = await pool.query("SELECT * FROM post ORDER BY idx DESC") //모든 게시물 긁어오기
     res.json({ list: data[0] })
 })
 
