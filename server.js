@@ -19,9 +19,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/', async (req, res) => {
-    let data = await pool.query("SELECT * FROM post ORDER BY datetime DESC")
+    let data = await pool.query("SELECT * FROM post ORDER BY idx DESC")
     let jsonData = JSON.stringify(data[0])
-    res.render('board', { jsonData });
+    res.render('board', { jsonData: jsonData, });
 });
 app.post('/insert/board', async (req, res) => {
     const { detail, id } = req.body;
