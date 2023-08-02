@@ -19,18 +19,29 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/', async (req, res) => {
-    let data = await pool.query("SELECT * FROM post ORDER BY idx DESC")
-    let jsonData = JSON.stringify(data[0])
-    res.render('board', { jsonData: jsonData, });
+    const { page } = req.query;
+    const currentPage = parseInt(page) || 1;
+    const pagePerPage = 5;
+    const itemsPerPage = 15;
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const endIdx = startIdx + itemsPerPage;
+    let data = await pool.query("SELECT * FROM post ORDER BY idx DESC");
+    const MaxPage = Math.ceil(data[0].length / itemsPerPage);
+    const subsetData = data[0].slice(startIdx, endIdx);
+    let jsonData = JSON.stringify(subsetData);
+    res.render('board', { jsonData: jsonData, currentPage, pagePerPage, MaxPage });
 });
 app.post('/insert/board', async (req, res) => {
-    const { detail, id, title } = req.body;
+    const { detail, id, title, currPage } = req.body;
     const sql = "INSERT INTO post (`id`, `title`, `datetime`, `detail`) VALUES (?,?,now(),?)"
     await pool.query(sql, [id, title, detail]); //게시물 추가
-    // let now = new Date()
-    // let dayTimeString = new Date(now.getTime()).toISOString().replace('T', ' ').slice(0, -5);
-    let data = await pool.query("SELECT * FROM post ORDER BY idx DESC") //모든 게시물 긁어오기
-    res.json({ list: data[0] })
+    const currentPage = parseInt(currPage) || 1;
+    const pagePerPage = 5;
+    const itemsPerPage = 15;
+    let data = await pool.query("SELECT * FROM post ORDER BY idx DESC")
+    const MaxPage = Math.ceil(data[0].length / itemsPerPage);
+    const subsetData = data[0].slice(0, itemsPerPage);//모든 게시물 긁어오기
+    res.json({ list: subsetData, MaxPage: MaxPage, currPage: currentPage, pPerPage: pagePerPage })
 })
 
 server.listen(app.get('port'), () => {
