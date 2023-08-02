@@ -173,7 +173,7 @@
                     const pagePerPage = parseInt(json.pPerPage);
 
                     for (let i = ((Math.ceil(currentPage / pagePerPage) - 1) * 5) + 1; i
-                        <= (Math.ceil(currentPage / pagePerPage) * 5) && i <= MaxPage; i++) {
+                        <= (Math.ceil(currentPage / pagePerPage) * 5) && i <= json.MaxPage; i++) {
                         const btn = document.createElement('button')
                         if (i == 1) {
                             btn.className = 'btn btn-primary'
@@ -186,14 +186,20 @@
                         }
                         pageNationDiv.append(btn)
                     }
-                    if (!(json.MaxPage < 2)) {
+                    if (!(json.MaxPage == 1)) {
                         const rightBtn = document.createElement('button')
-                        rightBtn.className = "btn btn-outline-primary"
-                        rightBtn.innerHTML = `<i class='fa-solid fa-chevron-right'></i>`
+                        const lastBtn = document.createElement('button')
+                        rightBtn.className = lastBtn.className = "btn btn-outline-primary";
+                        lastBtn.innerHTML = lastBtn.innerHTML = `<i class='fa-solid fa-chevron-right'></i>`;
+                        lastBtn.innerHTML += `<i class='fa-solid fa-chevron-right'></i>`;
                         rightBtn.onclick = () => {
-                            window.location.href = `/?page=2`
+                            window.location.href = `/?page=${currentPage + 5}`
                         }
-                        pageNationDiv.append(rightBtn)
+                        lastBtn.onclick = () => {
+                            window.location.href = `/?page=${json.MaxPage}`
+                        }
+                        pageNationDiv.append(rightBtn);
+                        pageNationDiv.append(lastBtn);
                     }
                 }
             };
